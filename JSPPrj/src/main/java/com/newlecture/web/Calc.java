@@ -9,15 +9,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/add")
-public class Add extends HttpServlet{
+@WebServlet("/calc")
+public class Calc extends HttpServlet{
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		
 		PrintWriter out = response.getWriter();
 		
+		int result = 0;
 		String x_ = request.getParameter("x");
 		String y_ = request.getParameter("y");
+		String op = request.getParameter("operator");
 		
 		int x=0;
 		int y=0;
@@ -29,6 +31,12 @@ public class Add extends HttpServlet{
 			y = Integer.parseInt(y_);
 		}
 		
-		out.println(x+y);
+		if(op.equals("덧셈")) {
+			result = x+y;
+		}else if(op.equals("뺄셈")) {
+			result = x-y;
+		}
+		
+		out.println(result);
 	}
 }
