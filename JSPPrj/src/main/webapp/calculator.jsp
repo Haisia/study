@@ -1,3 +1,7 @@
+<%
+int x=20;
+int y=3;
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,7 +28,7 @@ input{
 <form action="calc3" method="post">
 	<table>
 		<tr>
-			<td class="output"colspan="4">0</td>
+			<td class="output"colspan="4"><%=x+y%></td>
 		</tr>
 		<tr>
 			<td><input type ="submit" name="operator" value="CE"></td>
