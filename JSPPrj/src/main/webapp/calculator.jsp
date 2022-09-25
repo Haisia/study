@@ -1,6 +1,7 @@
 <%
 int x=20;
 int y=3;
+
 %>
 <!DOCTYPE html>
 <html>
