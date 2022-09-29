@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class User {
-    private int uid;
+    private Integer uid;
     private String id;
     private String pwd;
     private String name;
