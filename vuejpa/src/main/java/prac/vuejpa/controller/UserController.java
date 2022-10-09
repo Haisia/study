@@ -15,6 +15,7 @@ public class UserController {
 
   @PostMapping("/user/signup")
   public Boolean userSignupController(@RequestBody User user) {
+    System.out.println(user.toString());
     if (user.getGrade().equals("") || user.getPk() == 0) {
       user.setGrade("Silver");
       user.setPk(null);

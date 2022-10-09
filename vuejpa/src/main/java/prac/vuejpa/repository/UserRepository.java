@@ -1,5 +1,6 @@
 package prac.vuejpa.repository;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,12 +12,9 @@ import java.util.List;
 @Slf4j
 @Repository
 @Transactional
+@RequiredArgsConstructor
 public class UserRepository {
   private final EntityManager em;
-
-  public UserRepository(EntityManager em) {
-    this.em = em;
-  }
 
   /**
    * Insert to DataBase
