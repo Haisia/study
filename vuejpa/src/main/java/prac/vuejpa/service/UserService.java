@@ -10,7 +10,19 @@ import prac.vuejpa.repository.UserRepository;
 public class UserService {
   private final UserRepository userRepository;
 
-  public void userSignupService(User user){
-    userRepository.userSignupRepository(user);
+  public User userSignupService(User user){
+    return userRepository.save(user);
+  }
+
+  public User userFindByPkService(int pk){
+    return userRepository.findByPk(pk);
+  }
+
+  public User userFindByIdService(String id){
+    return userRepository.findById(id);
+  }
+
+  public void userInfoModifyService(int userPk, User updateUser){
+    userRepository.update(userPk, updateUser);
   }
 }

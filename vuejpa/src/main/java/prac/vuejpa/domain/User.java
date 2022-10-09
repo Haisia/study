@@ -1,9 +1,16 @@
 package prac.vuejpa.domain;
 
+import lombok.Data;
+
+import javax.persistence.*;
 import java.util.Date;
 
+@Data
+@Entity
 public class User {
-  private int pk;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer pk;
   private String id;
   private String password;
   private String name;
@@ -11,14 +18,16 @@ public class User {
   private int money;
   private String email;
   private Date birth;
+  @Column(name = "reg_date")
+  // 사실 스프링부트에서는 알아서 카멜케이스 -> 언더스코어로 변환해줌 (그래서 생략가능)
   private Date regDate;
   private int point;
 
-  public int getPk() {
+  public Integer getPk() {
     return pk;
   }
 
-  public void setPk(int pk) {
+  public void setPk(Integer pk) {
     this.pk = pk;
   }
 

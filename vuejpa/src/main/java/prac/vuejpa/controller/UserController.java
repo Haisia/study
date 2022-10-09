@@ -14,15 +14,17 @@ public class UserController {
   private final UserService userService;
 
   @PostMapping("/user/signup")
-  public String userSignupController(@RequestBody User user) throws JsonProcessingException {
-    System.out.println(user.toString());
-
-    return "가입완료";
+  public Boolean userSignupController(@RequestBody User user) {
+    if (user.getGrade().equals("") || user.getPk() == 0) {
+      user.setGrade("Silver");
+      user.setPk(null);
+    }
+    return userService.userSignupService(user) != null;
   }
 
   @PostMapping("/user/login")
-  public String userLoginController(){
+  public String userLoginController(@RequestBody User user) {
+    System.out.println(user.toString());
     return null;
   }
-
 }
