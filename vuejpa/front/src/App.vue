@@ -33,10 +33,8 @@
             </a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item"
-                     @click="url='http://localhost:5145/board/free/article';
-                      getApiCall();
-                      closeAll();
-                      is.OpenFreeBoard=true;
+                      @click="url='http://localhost:5145/board/free/article';
+                      getArticleList();
               ">Free Board</a></li>
               <li><a class="dropdown-item">Board2</a></li>
               <li>
@@ -151,6 +149,9 @@
           <td @click="closeAll();
                       clickedArticleIndex = i;
                       is.OpenFreeBoardArticle=true;
+                      lookingArticleNumber=data.pk;
+                      url = `http://localhost:5145/board/free/article/${lookingArticleNumber}`;
+                      getApiCallNoResult(url);
           ">{{ data.title }}
           </td>
           <td>{{ data.writer }}</td>
@@ -176,7 +177,12 @@
       <div style="height: 650px;">
         {{ result[clickedArticleIndex].content }}
       </div>
-      <button @click="closeAll(); is.OpenFreeBoard=true;" style="float: right" type="button" class="btn btn-secondary">
+      <button @click="
+                      url = `http://localhost:5145/board/free/article/${lookingArticleNumber}`;
+                      deleteApiCall(url);
+                      closeAll();
+" style="float: right" type="button" class="btn btn-danger">글삭제</button>
+      <button @click="getArticleList()" style="float: right; margin-right: 8px;" type="button" class="btn btn-secondary">
         목록으로
       </button>
     </div>
@@ -202,7 +208,7 @@
         <div class="input-group mb-3">
           <textarea style="height: 600px" class="form-control" v-model="article.content"/>
         </div>
-        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll(); is.OpenFreeBoard=true;">등록</button>
+        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll();">등록</button>
         <button style="margin-right: 7px; float: right;" type="button" class="btn btn-secondary" @click="closeAll(); is.OpenFreeBoard=true;">취소</button>
       </form>
     </div>
@@ -262,6 +268,7 @@ export default {
   data() {
     return {
       clickedArticleIndex: 0,
+      lookingArticleNumber: 0,
       user: user,
       login: login,
       article: article,
@@ -297,18 +304,21 @@ export default {
     },
 
     testLog() {
-      console.log("#####################");
-      for (let key in this.is) {
-        console.log(this.is.key);
-        console.log(key)
-      }
-      console.log("#####################");
 
       this.is.OpenLogin = false;
       this.is.OpenSignup = false;
       this.is.OpenFreeBoard = false;
       this.is.SubmitSignup = false;
     },
+
+    getArticleList() {
+      let _url='http://localhost:5145/board/free/article';
+      this.getApiCall(_url);
+      this.closeAll();
+      this.is.OpenFreeBoard=true;
+
+    },
+
     getTest() {
       axios.get("http://localhost:5145/board/free/article");
     },
@@ -320,18 +330,15 @@ export default {
       });
     },
 
-    async getApiCall() {
+    async getApiCall(url) {
       let result;
-      await axios.get(this.url).then(function (e) {
+      await axios.get(url).then(function (e) {
         result = e.data;
       });
       this.result = result;
-      console.log(this.result);
-      console.log(typeof this.result[0]);
     },
     postApiCall(url, _data) {
       let jsonData = JSON.stringify(_data);
-      console.log(jsonData);
       axios.post(url, jsonData, {
         headers: {
           'Content-Type': 'application/json'
@@ -340,7 +347,15 @@ export default {
         console.log(e.data);
       });
     },
+    async getApiCallNoResult(url) {
+      await axios.get(url);
+    },
+    async deleteApiCall(url){
+      await axios.delete(url);
+    },
   },
+
+
 }
 </script>
 
