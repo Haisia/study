@@ -72,11 +72,14 @@
     <!--##########################################################################-->
     <!--##########################################################################-->
     <div class="user-form-modal" :class="{ display_block : is.OpenSignup}" style="background: white">
-      <form class="user-signup-form" @submit="postApiCall">
+      <form class="user-signup-form" @submit.prevent="function(){
+        let _url = 'http://localhost:5145/user/signup';
+        postApiCall(_url, user);
+      }">
         <h2>Sign-up</h2>
         <div class="form-group">
           <label>User ID</label>
-          <input v-model="user.id" type="text" class="form-control" aria-describedby="UserIdHelp">
+          <input v-model="user.id" type="text" class="form-control">
           <small id="UserIdHelp" class="form-text text-muted">6글자 이상 입력하세요.</small>
         </div>
         <div class="form-group">
@@ -97,10 +100,7 @@
           <small class="form-text text-muted">ex) 2022-10-08</small>
         </div>
         <button type="submit" class="btn btn-primary user-signup-submit"
-                @click="closeAll();
-                        url='http://localhost:5145/user/signup';
-                        data=user;
-        ">Submit
+                @click="closeAll();">Submit
         </button>
         <button type="reset" @click="closeAll();" class="btn btn-secondary user-signup-close">Close</button>
       </form>
@@ -109,9 +109,12 @@
 
 
     <div class="user-form-modal" :class="{display_block : is.OpenLogin}" style="background-color:white;">
-      <!--      <form class="user-login-form" @submit="userLoginApiCall">-->
+      <!--      <form class="user-login-form" @submit.prevent="userLoginApiCall">-->
       <form class="user-login-form"
-            @submit="postApiCall;">
+            @submit.prevent="function(){
+              let _url = 'http://localhost:5145/user/login'
+              postApiCall(_url, login);
+            }">
         <h2>Login</h2>
         <div class="form-group">
           <label>ID</label>
@@ -131,7 +134,7 @@
       </form>
     </div>
 
-    <!--Free Board-->
+    <!--Free Board List-->
     <div class="board-container" :class="{display_block:is.OpenFreeBoard}">
       <table class="table free-board">
         <thead>
@@ -145,12 +148,63 @@
         <tbody>
         <tr v-for="(data, i) in result" :key="i">
           <th scope="row" style="text-align: center">{{ data.pk }}</th>
-          <td>{{ data.title }}</td>
+          <td @click="closeAll();
+                      clickedArticleIndex = i;
+                      is.OpenFreeBoardArticle=true;
+          ">{{ data.title }}
+          </td>
           <td>{{ data.writer }}</td>
           <td>{{ data.viewCount }}</td>
         </tr>
         </tbody>
       </table>
+      <button style="float: right" type="button" class="btn btn-primary"
+              @click="closeAll();
+                      is.OpenFreeBoardWriteForm = true;">글쓰기</button>
+    </div>
+
+    <!--Free Board Article-->
+    <div class="board-container" :class="{display_block:is.OpenFreeBoardArticle}">
+      <h5 style="border-top: slategrey solid 1px">{{ result[clickedArticleIndex].title }}</h5>
+      <div style="border-bottom: slategrey solid 1px">
+        <span>{{ result[clickedArticleIndex].writer }} | {{ result[clickedArticleIndex].writeDate }}</span>
+        <span
+            style="float: right">조회 {{
+            result[clickedArticleIndex].viewCount
+          }} | 댓글 {{ result[clickedArticleIndex].commentCount }}</span>
+      </div>
+      <div style="height: 650px;">
+        {{ result[clickedArticleIndex].content }}
+      </div>
+      <button @click="closeAll(); is.OpenFreeBoard=true;" style="float: right" type="button" class="btn btn-secondary">
+        목록으로
+      </button>
+    </div>
+
+<!--write to free board-->
+    <div class="board-container" :class="{display_block : is.OpenFreeBoardWriteForm}">
+      <form @submit.prevent="function(){
+        let _url='http://localhost:5145/boar/free/article';
+        postApiCall(_url, article);
+      }">
+        <div class="input-group mb-3" style="width:300px">
+          <div class="input-group-prepend">
+            <span style="width:70px" class="input-group-text">작성자</span>
+          </div>
+          <input type="text" class="form-control" v-model="article.writer">
+        </div>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span style="width:70px" class="input-group-text">제목</span>
+          </div>
+          <input type="text" class="form-control" v-model="article.title">
+        </div>
+        <div class="input-group mb-3">
+          <textarea style="height: 600px" class="form-control" v-model="article.content"/>
+        </div>
+        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll(); is.OpenFreeBoard=true;">등록</button>
+        <button style="margin-right: 7px; float: right;" type="button" class="btn btn-secondary" @click="closeAll(); is.OpenFreeBoard=true;">취소</button>
+      </form>
     </div>
 
 
@@ -193,17 +247,31 @@ let login = {
   password: "",
 }
 
+let article = {
+  pk: "",
+  title: "",
+  content: "",
+  writer: "",
+  writeDate: "",
+  viewCount: "",
+  commentCount: "",
+}
+
 export default {
   name: 'App',
   data() {
     return {
+      clickedArticleIndex: 0,
       user: user,
       login: login,
+      article: article,
       is: {
         OpenSignup: false,
         SubmitSignup: false,
         OpenLogin: false,
         OpenFreeBoard: false,
+        OpenFreeBoardArticle: false,
+        OpenFreeBoardWriteForm: false,
       },
 
       url: "",
@@ -261,10 +329,10 @@ export default {
       console.log(this.result);
       console.log(typeof this.result[0]);
     },
-    postApiCall() {
-      let jsonData = JSON.stringify(this.data);
+    postApiCall(url, _data) {
+      let jsonData = JSON.stringify(_data);
       console.log(jsonData);
-      axios.post(this.url, jsonData, {
+      axios.post(url, jsonData, {
         headers: {
           'Content-Type': 'application/json'
         }
