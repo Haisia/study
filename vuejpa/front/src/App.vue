@@ -2,7 +2,7 @@
   <!--  <div class="outside-div" :class="{bg_black : isOpenSignup,-->
   <!--                                    bg_black : isOpenLogin}">-->
   <div class="outside-div"
-        :class="{bg_black : is.OpenSignup || is.OpenLogin || is.SubmitSignup}">
+       :class="{bg_black : is.OpenSignup || is.OpenLogin || is.SubmitSignup}">
     <!--Nav Bar-->
     <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
       <a class="navbar-brand" href="http://localhost:8080">Home</a>
@@ -33,8 +33,8 @@
             </a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item"
-                      @click="url='http://localhost:5145/board/free/article';
-                      getArticleList();
+                     @click="url='http://localhost:5145/board/free/article';
+                      getArticleListAndPagination();
               ">Free Board</a></li>
               <li><a class="dropdown-item">Board2</a></li>
               <li>
@@ -144,41 +144,67 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(data, i) in result" :key="i">
-          <th scope="row" style="text-align: center">{{ data.pk }}</th>
-          <td @click="closeAll();
-                      clickedArticleIndex = i;
-                      is.OpenFreeBoardArticle=true;
-                      lookingArticleNumber=data.pk;
-                      url = `http://localhost:5145/board/free/article/${lookingArticleNumber}`;
-                      getApiCallNoResult(url);
-          ">{{ data.title }} ({{data.commentCount}})
+        <tr v-for="(data, j) in article" :key="j">
+          <th scope="row" style="text-align: center">{{ article[j].pk }}</th>
+          <td>
+            <span @click="closeAll();
+            clickedArticleIndex = j;
+            lookingArticleNumber=article[j].pk;
+            url = `http://localhost:5145/board/free/article/${lookingArticleNumber}`;
+            is.OpenFreeBoardArticle=true;
+
+            //조회수 증가용 api 콜
+            getApiCallNoResult(url);">{{ article[j].title }}</span>
+            <span> ({{ article[j].commentCount }})</span>
           </td>
-          <td>{{ data.writer }}</td>
-          <td>{{ data.viewCount }}</td>
+          <td>{{ article[j].writer }}</td>
+          <td>{{ article[j].viewCount }}</td>
         </tr>
         </tbody>
       </table>
 
       <button style="float: right" type="button" class="btn btn-primary"
               @click="closeAll();
-                      is.OpenFreeBoardWriteForm = true;">글쓰기</button>
+                      is.OpenFreeBoardWriteForm = true;">글쓰기
+      </button>
 
       <!--페이징-->
-      <nav aria-label="Page navigation example" style="margin-left: 25%">
+      <nav aria-label="...">
         <ul class="pagination">
-          <li class="page-item">
-            <a class="page-link" href="#" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
+          <li class="page-item" :class="{disabled:!pagination.showFirstBtn}">
+            <a class="page-link"
+                @click="clickedPaginationNumber=1;
+                        getArticleListAndPagination();
+              ">&laquo;</a>
           </li>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item">
-            <a class="page-link" href="#" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
+          <li class="page-item" :class="{disabled:!pagination.showPreBtn}">
+            <a class="page-link"
+                @click="clickedPaginationNumber=clickedPaginationNumber-pagination.paginationPerNav;
+                    getArticleListAndPagination();
+            ">&lt;</a>
+          </li>
+
+          <li class="page-item" v-for="(pageNum,i) in pagination.paginationPerNav" :key="i" :class="{active:clickedPaginationNumber==i+pagination.leftPage}">
+            <a @click="clickedPaginationNumber=i+pagination.leftPage;
+                  getArticleListAndPagination();
+                  " class="page-link"
+                v-if="i + pagination.leftPage<=pagination.totalPage">{{ i + pagination.leftPage }}</a></li>
+
+
+          <!--          <li class="page-item active">-->
+          <!--            <a class="page-link" href="#">2</a></li>-->
+
+          <li class="page-item" :class="{disabled:!pagination.showNextBtn}">
+            <a class="page-link"
+                @click="
+                      moveNextPage();
+            ">&gt;</a>
+          </li>
+
+          <li class="page-item" :class="{disabled:!pagination.showLastestBtn}">
+            <a class="page-link" @click="clickedPaginationNumber=pagination.totalPage;
+                    getArticleListAndPagination();
+                  ">&raquo;</a>
           </li>
         </ul>
       </nav>
@@ -188,32 +214,35 @@
 
     <!--Free Board Article-->
     <div class="board-container" :class="{display_block:is.OpenFreeBoardArticle}">
-      <h5 style="border-top: slategrey solid 1px">{{ result[clickedArticleIndex].title }}</h5>
+      <h5 style="border-top: slategrey solid 1px">{{ article[clickedArticleIndex].title }}</h5>
       <div style="border-bottom: slategrey solid 1px">
-        <span>{{ result[clickedArticleIndex].writer }} | {{ result[clickedArticleIndex].writeDate }}</span>
+        <span>{{ article[clickedArticleIndex].writer }} | {{ article[clickedArticleIndex].writeDate }}</span>
         <span
             style="float: right">조회 {{
-            result[clickedArticleIndex].viewCount
-          }} | 댓글 {{ result[clickedArticleIndex].commentCount }}</span>
+            article[clickedArticleIndex].viewCount
+          }} | 댓글 {{ article[clickedArticleIndex].commentCount }}</span>
       </div>
       <div style="height: 650px;">
-        {{ result[clickedArticleIndex].content }}
+        {{ article[clickedArticleIndex].content }}
       </div>
       <button @click="
                       url = `http://localhost:5145/board/free/article/${lookingArticleNumber}`;
                       deleteApiCall(url);
                       closeAll();
-" style="float: right" type="button" class="btn btn-danger">글삭제</button>
-      <button @click="getArticleList()" style="float: right; margin-right: 8px;" type="button" class="btn btn-secondary">
-        목록으로
+" style="float: right" type="button" class="btn btn-danger">글삭제
       </button>
+      <button @click="getArticleListAndPagination()
+" style="float: right; margin-right: 8px;" type="button"
+              class="btn btn-secondary">목록으로</button>
+
       <button style="float: right; margin-right: 8px" type="button" class="btn btn-primary"
               @click="closeAll();
-                      is.OpenFreeBoardModifyForm = true;">글수정</button>
+                      is.OpenFreeBoardModifyForm = true;">글수정
+      </button>
 
     </div>
 
-<!--write to free board-->
+    <!--write to free board-->
     <div class="board-container" :class="{display_block : is.OpenFreeBoardWriteForm}">
       <form @submit.prevent="function(){
         let _url='http://localhost:5145/board/free/article';
@@ -234,8 +263,11 @@
         <div class="input-group mb-3">
           <textarea style="height: 600px" class="form-control" v-model="article.content"/>
         </div>
-        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll();">등록</button>
-        <button style="margin-right: 7px; float: right;" type="button" class="btn btn-secondary" @click="closeAll(); is.OpenFreeBoard=true;">취소</button>
+        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll();">등록
+        </button>
+        <button style="margin-right: 7px; float: right;" type="button" class="btn btn-secondary"
+                @click="closeAll(); is.OpenFreeBoard=true;">취소
+        </button>
       </form>
     </div>
 
@@ -245,36 +277,30 @@
         let _url=`http://localhost:5145/board/free/article`;
         // this.article=result[clickedArticleIndex];
 
-        putApiCall(_url, result[clickedArticleIndex]);
+        putApiCall(_url, article[clickedArticleIndex]);
       }">
         <div class="input-group mb-3" style="width:300px">
           <div class="input-group-prepend">
             <span style="width:70px" class="input-group-text">작성자</span>
           </div>
-          <input type="text" class="form-control" v-model="result[clickedArticleIndex].writer">
+          <input type="text" class="form-control" v-model="article[clickedArticleIndex].writer">
         </div>
         <div class="input-group mb-3">
           <div class="input-group-prepend">
             <span style="width:70px" class="input-group-text">제목</span>
           </div>
-          <input type="text" class="form-control" v-model="result[clickedArticleIndex].title">
+          <input type="text" class="form-control" v-model="article[clickedArticleIndex].title">
         </div>
         <div class="input-group mb-3">
-          <textarea style="height: 600px" class="form-control" v-model="result[clickedArticleIndex].content"/>
+          <textarea style="height: 600px" class="form-control" v-model="article[clickedArticleIndex].content"/>
         </div>
-        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll();">수정</button>
-        <button style="margin-right: 7px; float: right;" type="button" class="btn btn-secondary" @click="closeAll(); is.OpenFreeBoardArticle=true;">취소</button>
+        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll();">수정
+        </button>
+        <button style="margin-right: 7px; float: right;" type="button" class="btn btn-secondary"
+                @click="closeAll(); is.OpenFreeBoardArticle=true;">취소
+        </button>
       </form>
     </div>
-
-
-
-
-
-
-
-
-
 
 
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
@@ -303,7 +329,7 @@ let login = {
   password: "",
 }
 
-let article = {
+let article = [{
   pk: "",
   title: "",
   content: "",
@@ -311,17 +337,20 @@ let article = {
   writeDate: "",
   viewCount: "",
   commentCount: "",
-}
+}]
 
 export default {
   name: 'App',
   data() {
     return {
+      nowPage: 1,
       clickedArticleIndex: 0,
       lookingArticleNumber: 0,
       user: user,
       login: login,
       article: article,
+      clickedPaginationNumber: 1,
+
       is: {
         OpenSignup: false,
         SubmitSignup: false,
@@ -337,17 +366,29 @@ export default {
       result: [{
         pk: "",
         title: "",
+        content: "",
         writer: "",
         writeDate: "",
         viewCount: "",
         commentCount: "",
       }],
+      pagination: {
+        totalPage: "",
+        nowPage: "",
+        leftPage: "",
+        rightPage: "",
+        articlePerPage: "",
+        paginationPerNav: "",
+        firstArticle: "",
+        showFirstBtn: "",
+        showPreBtn: "",
+        showNextBtn: "",
+        showLastestBtn: "",
+      }
     }
   },
   components: {},
   methods: {
-
-
     closeAll() {
       for (let key in this.is) {
         this.is[key] = false;
@@ -362,14 +403,28 @@ export default {
       this.is.SubmitSignup = false;
     },
 
-    getArticleList() {
-      let _url='http://localhost:5145/board/free/article?firstIndex=0&articleCount=10';
-      this.getApiCall(_url);
-      this.closeAll();
-      this.is.OpenFreeBoard=true;
+    getArticleListAndPagination() {
+      let _url = `http://localhost:5145/board/free/article?nowPage=${this.clickedPaginationNumber}&articleCount=3`;
+      let __url = `http://localhost:5145/board/free/pagination?nowPage=${this.clickedPaginationNumber}&articleCount=3`;
 
+      // this.getApiCall(_url);
+      this.getArticleList(_url);
+      this.getArticlePagination(__url);
+      this.closeAll();
+      this.is.OpenFreeBoard = true;
+
+      console.log(this.clickedPaginationNumber);
     },
 
+    moveNextPage() {
+      if (this.clickedPaginationNumber + this.pagination.paginationPerNav <= this.pagination.totalPage) {
+        this.clickedPaginationNumber += this.pagination.paginationPerNav;
+      } else {
+        this.clickedPaginationNumber = this.pagination.totalPage;
+      }
+      this.getArticleListAndPagination();
+
+    },
     getTest() {
       axios.get("http://localhost:5145/gettest");
     },
@@ -385,9 +440,36 @@ export default {
       let result;
       await axios.get(url).then(function (e) {
         result = e.data;
+
       });
       this.result = result;
+
     },
+
+    async getArticleList(url) {
+      let article;
+      await axios.get(url).then(function (e) {
+        article = e.data;
+
+      });
+      // this.clearResult();
+      this.article = article;
+      console.log("#######################################")
+      console.log("article.length : "+this.article.length);
+      console.log("clickedPaginationNumber : "+this.clickedPaginationNumber);
+    },
+
+    async getArticlePagination(url) {
+      let pagination;
+      await axios.get(url).then(function (e) {
+        pagination = e.data;
+
+        // alert(JSON.stringify(pagination));
+      });
+      this.pagination = pagination;
+    },
+
+
     postApiCall(url, _data) {
       let jsonData = JSON.stringify(_data);
       axios.post(url, jsonData, {
@@ -401,13 +483,24 @@ export default {
     async getApiCallNoResult(url) {
       await axios.get(url);
     },
-    async deleteApiCall(url){
+    async deleteApiCall(url) {
       await axios.delete(url);
     },
 
-    async putApiCall(url, _data){
+    clearResult() {
+      this.result = [{
+        pk: "",
+        title: "",
+        writer: "",
+        writeDate: "",
+        viewCount: "",
+        commentCount: "",
+      }]
+    },
+
+    async putApiCall(url, _data) {
       console.log(_data);
-      _data.writeDate=Date.now();
+      _data.writeDate = Date.now();
       let jsonData = JSON.stringify(_data);
       console.log(jsonData);
       console.log(url);

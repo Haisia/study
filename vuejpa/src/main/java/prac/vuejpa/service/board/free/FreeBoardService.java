@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import prac.vuejpa.domain.Article;
+import prac.vuejpa.domain.Pagination;
 import prac.vuejpa.repository.BoardRepository;
 
 import java.util.List;
@@ -13,10 +14,10 @@ import java.util.List;
 public class FreeBoardService {
   final private BoardRepository boardRepository;
 
-  public String getArticleListService(int firstIndex, int articleCount) {
+  public String getArticleListService(Pagination pagination, int articleCount) {
+    int firstIndex = pagination.getFirstArticle();
     List<Article> articleList = boardRepository.findRange(firstIndex, articleCount);
     String articleListJson = new Gson().toJson(articleList);
-
 
     return articleListJson;
   }
@@ -40,5 +41,11 @@ public class FreeBoardService {
 
   public void modifyArticleService(Article article) {
     boardRepository.update(article.getPk(), article);
+  }
+
+  public int getTotalArticleCount(){
+    int totalArticleCount = boardRepository.countByArticle();
+
+    return totalArticleCount;
   }
 }

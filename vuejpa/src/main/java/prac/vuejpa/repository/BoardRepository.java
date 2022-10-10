@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import prac.vuejpa.domain.Article;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -39,12 +40,12 @@ public class BoardRepository {
     return query.getResultList();
   }
 
-  public Article findById(String id){
-    return em.find(Article.class,id);
+  public Article findById(String id) {
+    return em.find(Article.class, id);
   }
 
-  public Article findByPk(int pk){
-    return em.find(Article.class,pk);
+  public Article findByPk(int pk) {
+    return em.find(Article.class, pk);
   }
 
   public void update(int articlePk, Article updateArticle) {
@@ -60,5 +61,18 @@ public class BoardRepository {
   public void deleteByPk(int pk) {
     Article article = findByPk(pk);
     em.remove(article);
+  }
+
+  public int countByArticle() {
+//    String jpql = "select count(1) from Article";
+////    em.createQuery(jpql, Article.class);
+//    System.out.println("################Called##############");
+//
+//    int rowCnt = (Integer) em.createNativeQuery(jpql, Article.class).getSingleResult();
+////    return rowCnt;
+
+    int count = findAll().size();
+    System.out.println("count = " + count);
+    return count;
   }
 }

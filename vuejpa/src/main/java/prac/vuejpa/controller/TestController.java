@@ -1,6 +1,7 @@
 package prac.vuejpa.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,9 +14,8 @@ import prac.vuejpa.service.board.free.FreeBoardService;
 
 @RestController
 @RequiredArgsConstructor
-
 public class TestController {
-  private final FreeBoardService freeBoardService;
+  final private FreeBoardService freeBoardService;
   final private BoardRepository boardRepository;
 
   @GetMapping("/gettest")
@@ -43,10 +43,6 @@ public class TestController {
   @PostMapping("/posttest")
   public String postTest(){
     System.out.println("/posttest called");
-
-
-
-
 
     return "post";
   }
