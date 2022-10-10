@@ -2,7 +2,7 @@
   <!--  <div class="outside-div" :class="{bg_black : isOpenSignup,-->
   <!--                                    bg_black : isOpenLogin}">-->
   <div class="outside-div"
-       :class="{bg_black : is.OpenSignup || is.OpenLogin || is.SubmitSignup}">
+        :class="{bg_black : is.OpenSignup || is.OpenLogin || is.SubmitSignup}">
     <!--Nav Bar-->
     <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
       <a class="navbar-brand" href="http://localhost:8080">Home</a>
@@ -28,7 +28,7 @@
           </li>
           <!--#######################################-->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
               Board
             </a>
             <ul class="dropdown-menu">
@@ -45,11 +45,11 @@
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
               테스트용
             </a>
             <ul class="dropdown-menu">
-              <li><a @click="getTest" class="dropdown-item">GET</a></li>
+              <li><a @click="getTest()" class="dropdown-item">GET</a></li>
               <li><a @click="postTest" class="dropdown-item">POST</a></li>
               <li><p @click="testLog" class="dropdown-item">Log</p></li>
             </ul>
@@ -152,16 +152,38 @@
                       lookingArticleNumber=data.pk;
                       url = `http://localhost:5145/board/free/article/${lookingArticleNumber}`;
                       getApiCallNoResult(url);
-          ">{{ data.title }}
+          ">{{ data.title }} ({{data.commentCount}})
           </td>
           <td>{{ data.writer }}</td>
           <td>{{ data.viewCount }}</td>
         </tr>
         </tbody>
       </table>
+
       <button style="float: right" type="button" class="btn btn-primary"
               @click="closeAll();
                       is.OpenFreeBoardWriteForm = true;">글쓰기</button>
+
+      <!--페이징-->
+      <nav aria-label="Page navigation example" style="margin-left: 25%">
+        <ul class="pagination">
+          <li class="page-item">
+            <a class="page-link" href="#" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li class="page-item"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+
     </div>
 
     <!--Free Board Article-->
@@ -185,12 +207,16 @@
       <button @click="getArticleList()" style="float: right; margin-right: 8px;" type="button" class="btn btn-secondary">
         목록으로
       </button>
+      <button style="float: right; margin-right: 8px" type="button" class="btn btn-primary"
+              @click="closeAll();
+                      is.OpenFreeBoardModifyForm = true;">글수정</button>
+
     </div>
 
 <!--write to free board-->
     <div class="board-container" :class="{display_block : is.OpenFreeBoardWriteForm}">
       <form @submit.prevent="function(){
-        let _url='http://localhost:5145/boar/free/article';
+        let _url='http://localhost:5145/board/free/article';
         postApiCall(_url, article);
       }">
         <div class="input-group mb-3" style="width:300px">
@@ -213,20 +239,44 @@
       </form>
     </div>
 
+    <!--modify form free board-->
+    <div class="board-container" :class="{display_block : is.OpenFreeBoardModifyForm}">
+      <form @submit.prevent="function(){
+        let _url=`http://localhost:5145/board/free/article`;
+        // this.article=result[clickedArticleIndex];
 
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        putApiCall(_url, result[clickedArticleIndex]);
+      }">
+        <div class="input-group mb-3" style="width:300px">
+          <div class="input-group-prepend">
+            <span style="width:70px" class="input-group-text">작성자</span>
+          </div>
+          <input type="text" class="form-control" v-model="result[clickedArticleIndex].writer">
+        </div>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span style="width:70px" class="input-group-text">제목</span>
+          </div>
+          <input type="text" class="form-control" v-model="result[clickedArticleIndex].title">
+        </div>
+        <div class="input-group mb-3">
+          <textarea style="height: 600px" class="form-control" v-model="result[clickedArticleIndex].content"/>
+        </div>
+        <button style="margin-right: 7px; float: right;" type="submit" class="btn btn-primary" @click="closeAll();">수정</button>
+        <button style="margin-right: 7px; float: right;" type="button" class="btn btn-secondary" @click="closeAll(); is.OpenFreeBoardArticle=true;">취소</button>
+      </form>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
   </div>
@@ -279,6 +329,7 @@ export default {
         OpenFreeBoard: false,
         OpenFreeBoardArticle: false,
         OpenFreeBoardWriteForm: false,
+        OpenFreeBoardModifyForm: false,
       },
 
       url: "",
@@ -312,7 +363,7 @@ export default {
     },
 
     getArticleList() {
-      let _url='http://localhost:5145/board/free/article';
+      let _url='http://localhost:5145/board/free/article?firstIndex=0&articleCount=10';
       this.getApiCall(_url);
       this.closeAll();
       this.is.OpenFreeBoard=true;
@@ -320,7 +371,7 @@ export default {
     },
 
     getTest() {
-      axios.get("http://localhost:5145/board/free/article");
+      axios.get("http://localhost:5145/gettest");
     },
     postTest() {
       axios.post("http://localhost:5145/posttest", JSON.stringify(login), {
@@ -352,6 +403,21 @@ export default {
     },
     async deleteApiCall(url){
       await axios.delete(url);
+    },
+
+    async putApiCall(url, _data){
+      console.log(_data);
+      _data.writeDate=Date.now();
+      let jsonData = JSON.stringify(_data);
+      console.log(jsonData);
+      console.log(url);
+      await axios.put(url, jsonData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(function (e) {
+        console.log(e.data);
+      });
     },
   },
 
