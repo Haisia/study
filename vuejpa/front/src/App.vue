@@ -144,21 +144,21 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(data, j) in article" :key="j">
-          <th scope="row" style="text-align: center">{{ article[j].pk }}</th>
+        <tr v-for="(data, j) in this.article" :key="j">
+          <th scope="row" style="text-align: center">{{ data.pk }}</th>
           <td>
             <span @click="closeAll();
             clickedArticleIndex = j;
-            lookingArticleNumber=article[j].pk;
+            lookingArticleNumber=data.pk;
             url = `http://localhost:5145/board/free/article/${lookingArticleNumber}`;
             is.OpenFreeBoardArticle=true;
 
             //조회수 증가용 api 콜
-            getApiCallNoResult(url);">{{ article[j].title }}</span>
-            <span> ({{ article[j].commentCount }})</span>
+            getApiCallNoResult(url);">{{ data.title }}</span>
+            <span> ({{ data.commentCount }})</span>
           </td>
-          <td>{{ article[j].writer }}</td>
-          <td>{{ article[j].viewCount }}</td>
+          <td>{{ data.writer }}</td>
+          <td>{{ data.viewCount }}</td>
         </tr>
         </tbody>
       </table>
@@ -350,6 +350,7 @@ export default {
       login: login,
       article: article,
       clickedPaginationNumber: 1,
+      articleCount:10,
 
       is: {
         OpenSignup: false,
@@ -404,8 +405,10 @@ export default {
     },
 
     getArticleListAndPagination() {
-      let _url = `http://localhost:5145/board/free/article?nowPage=${this.clickedPaginationNumber}&articleCount=3`;
-      let __url = `http://localhost:5145/board/free/pagination?nowPage=${this.clickedPaginationNumber}&articleCount=3`;
+      this.clickedArticleIndex=0;
+
+      let _url = `http://localhost:5145/board/free/article?nowPage=${this.clickedPaginationNumber}&articleCount=${this.articleCount}`;
+      let __url = `http://localhost:5145/board/free/pagination?nowPage=${this.clickedPaginationNumber}&articleCount=${this.articleCount}`;
 
       // this.getApiCall(_url);
       this.getArticleList(_url);
@@ -450,20 +453,17 @@ export default {
       let article;
       await axios.get(url).then(function (e) {
         article = e.data;
-
       });
-      // this.clearResult();
+      // console.log("#######################################")
+      // console.log("article.length : "+this.article.length);
+      // console.log("clickedPaginationNumber : "+this.clickedPaginationNumber);
       this.article = article;
-      console.log("#######################################")
-      console.log("article.length : "+this.article.length);
-      console.log("clickedPaginationNumber : "+this.clickedPaginationNumber);
     },
 
     async getArticlePagination(url) {
       let pagination;
       await axios.get(url).then(function (e) {
         pagination = e.data;
-
         // alert(JSON.stringify(pagination));
       });
       this.pagination = pagination;

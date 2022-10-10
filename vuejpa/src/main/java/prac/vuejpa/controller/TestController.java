@@ -22,7 +22,7 @@ public class TestController {
   public String getTest(){
 
 
-    for (int i = 31; i < 100; i++) {
+    for (int i = 1; i <= 1000; i++) {
       Article article = new Article();
 
       String title = "페이징 테스트 중입니다. ";
